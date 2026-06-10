@@ -43,22 +43,38 @@ export default function ProtectedRoute({
   allowedRoles,
   redirectTo = ROUTES.LOGIN,
 }) {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const role = useSelector(selectUserRole);
+  // Read Redux primary states
+  const reduxAuth = useSelector(selectIsAuthenticated);
+  const reduxRole = useSelector(selectUserRole);
   const location = useLocation();
 
-  // ── Not logged in ──────────────────────────────────────────────────────────
+  // 🚨 SAFETY BRIDGE: Fallback verification if Redux hasn't re-hydrated yet
+  const fallbackToken = localStorage.getItem("hrms_token");
+  const fallbackUserRaw = localStorage.getItem("hrms_user");
+  
+  const isAuthenticated = reduxAuth || (!!fallbackToken && !!fallbackUserRaw);
+  
+  let role = reduxRole;
+  if (!role && fallbackUserRaw) {
+    try {
+      role = JSON.parse(fallbackUserRaw)?.role;
+    } catch {
+      role = null;
+    }
+  }
+
+  // ── Not logged in ──
   if (!isAuthenticated) {
     return (
       <Navigate
         to={redirectTo}
-        state={{ from: location }}   // so LoginPage can redirect back after login
+        state={{ from: location }}
         replace
       />
     );
   }
 
-  // ── Role check (exact list takes priority) ─────────────────────────────────
+  // ── Role check (exact list takes priority) ──
   if (allowedRoles && allowedRoles.length > 0) {
     if (!allowedRoles.includes(role)) {
       return <Navigate to={ROUTES.UNAUTHORISED} replace />;

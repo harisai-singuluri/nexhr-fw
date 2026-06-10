@@ -99,17 +99,29 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = payload;
       });
-builder
+// ── Safe Registration Reducer ──
+    builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.user = payload.user;
-        state.token = payload.token;
-        localStorage.setItem("hrms_token", payload.token);
-        localStorage.setItem("hrms_user", JSON.stringify(payload.user));
+        
+        // Deep verification check to match your actual backend payload format
+        const verifiedUser = payload?.user || payload?.data?.user;
+        const verifiedToken = payload?.token || payload?.data?.token;
+
+        if (verifiedUser && verifiedToken) {
+          state.user = verifiedUser;
+          state.token = verifiedToken;
+          
+          localStorage.setItem("hrms_token", verifiedToken);
+          localStorage.setItem("hrms_user", JSON.stringify(verifiedUser));
+        } else {
+          // If the payload format is unexpected, safe-fallback to prevent loops
+          state.error = "Invalid validation footprint returned from application server.";
+        }
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.loading = false;
