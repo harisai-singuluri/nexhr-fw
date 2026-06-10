@@ -48,8 +48,6 @@ export const register = async (req, res) => {
 
 // @desc    Auth user & get token
 // @route   POST /api/v1/auth/login
-// Inside your auth controller file (e.g., src/controllers/authController.js)
-
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -81,20 +79,7 @@ export const loginUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("🔥 Hidden Backend Login Crash Logged:", error.stack);
-
-    // 🚨 FORCE CORS HEADERS TO STAY ATTACHED DURING A SEVERE CRASH
-    const requestOrigin = req.headers.origin;
-    if (requestOrigin) {
-      res.header("Access-Control-Allow-Origin", requestOrigin);
-      res.header("Access-Control-Allow-Credentials", "true");
-    }
-
-    return res.status(500).json({ 
-      success: false,
-      message: "Internal login controller breakdown", 
-      error: error.message 
-    });
+    return res.status(500).json({ message: error.message });
   }
 };
 
