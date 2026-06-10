@@ -10,6 +10,8 @@ import AppLayout from "../layouts/AppLayout";
 
 // ── Lazy pages ────────────────────────────────────────────────────────────────
 const LoginPage         = lazy(() => import("../features/auth/LoginPage"));
+// 🚨 THE ADDITION: Lazy load your newly created registration page component
+const RegisterPage      = lazy(() => import("../features/auth/RegisterPage")); 
 const ForgotPassword    = lazy(() => import("../features/auth/ForgotPassword"));
 const DashboardPage     = lazy(() => import("../features/dashboard/DashboardPage"));
 const EmployeeListPage  = lazy(() => import("../features/employees/EmployeeListPage"));
@@ -36,8 +38,6 @@ function PageLoader() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function AppRouter() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -46,6 +46,8 @@ export default function AppRouter() {
         {/* ── Public routes (no auth needed) ── */}
         <Route element={<AuthLayout />}>
           <Route path={ROUTES.LOGIN}           element={<LoginPage />} />
+          {/* 🚨 THE FIX: Register the path cleanly inside your public auth shell layout */}
+          <Route path="/register"              element={<RegisterPage />} /> 
           <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
         </Route>
 

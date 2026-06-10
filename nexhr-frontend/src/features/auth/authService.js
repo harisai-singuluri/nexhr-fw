@@ -119,6 +119,34 @@ const authService = {
     const { data } = await apiClient.post("/auth/reset-password", { token, password });
     return data;
   },
+  // ── Register ───────────────────────────────────────────────────────────────
+  async register(userData) {
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 900)); // simulate network delay
+
+      // Check if user already exists in mock data
+      const exists = MOCK_USERS.some(u => u.email.toLowerCase() === userData.email.toLowerCase());
+      if (exists) throw new Error("User already exists.");
+
+      // Create a mock layout payload
+      const newUser = {
+        id: `u-${Math.floor(Math.random() * 1000)}`,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role || "EMPLOYEE",
+        department: userData.department || "General",
+        avatar: null,
+        permissions: userData.role === "ADMIN" ? ["*"] : ["profile:self", "attendance:self"]
+      };
+
+      const token = `mock-jwt-${newUser.id}-${Date.now()}`;
+      return { user: newUser, token };
+    }
+
+    // Real API call targeting your live Render cloud database!
+    const { data } = await apiClient.post("/auth/register", userData);
+    return data; // expects { success: true, user, token }
+  },
 };
 
 export default authService;

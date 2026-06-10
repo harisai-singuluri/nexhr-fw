@@ -344,7 +344,18 @@ export default function LoginPage() {
                   >
                     {role}
                   </button>
+                  
                 ))}
+                <p className="mt-4 text-sm text-slate-400 text-center">
+  Need a fresh corporate profile?{" "}
+  <button 
+    type="button"
+    onClick={() => navigate("/register")} 
+    className="text-indigo-400 hover:text-indigo-300 font-medium underline underline-offset-2"
+  >
+    Create an account
+  </button>
+</p>
               </div>
             </div>
           </div>

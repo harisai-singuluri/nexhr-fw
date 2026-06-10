@@ -14,6 +14,17 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+export const registerUser = createAsyncThunk(
+  "auth/register",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const data = await authService.register(userData);
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message || "Registration failed. Please try again.");
+    }
+  }
+);
 
 export const logoutUser = createAsyncThunk("auth/logout", async () => {
   await authService.logout();
@@ -88,7 +99,22 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = payload;
       });
-
+builder
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.user = payload.user;
+        state.token = payload.token;
+        localStorage.setItem("hrms_token", payload.token);
+        localStorage.setItem("hrms_user", JSON.stringify(payload.user));
+      })
+      .addCase(registerUser.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload;
+      });
     // ── Logout ──
     builder
       .addCase(logoutUser.fulfilled, (state) => {

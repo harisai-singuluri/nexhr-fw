@@ -8,7 +8,7 @@ export default function PayrollPage() {
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState(null);
   
-  const [form, setForm] = useState({
+  const [form, setForm] = useState({  
     employeeId: "",
     month: "06", // Default to current month structure
     year: "2026",
