@@ -6,11 +6,11 @@ import axios from "axios";
  * - On 401, clears the session and redirects to /login.
  */
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1",
-  timeout: 15_000,
+  // ✅ FIXED: Changed local fallback to your live Render backend URL string
+  baseURL: import.meta.env.VITE_API_BASE_URL || "https://nexhr-fw.onrender.com/api/v1",
+  timeout: 30000, // Boosted to 30s to keep Free Tier cold boots from snapping connection thresholds
   headers: { "Content-Type": "application/json" },
 });
-
 // ── Request interceptor — attach token ────────────────────────────────────────
 apiClient.interceptors.request.use(
   (config) => {
