@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Employee from "../models/Employee.js"; // 🚨 1. IMPORT YOUR EMPLOYEE MODEL HIERARCHY HERE
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 
@@ -20,6 +21,7 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 2. Scaffold Core User Credential Entry
     const user = await User.create({
       name,
       email: email.toLowerCase(),
@@ -27,6 +29,15 @@ export const register = async (req, res) => {
       role: role || "EMPLOYEE",
       department: department || "General",
       permissions
+    });
+
+    // 3. 🚨 THE FIX: Map a Professional Detailed HR Entity automatically linked to this user's ID
+    await Employee.create({
+      user: user._id,
+      employeeId: `NEX-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, // Generates an ID like NEX-2026-4829
+      designation: role === "ADMIN" ? "System Administrator" : role === "MANAGER" ? "Engineering Lead" : role === "HR" ? "HR Specialist" : "Staff Associate",
+      joiningDate: new Date(),
+      salary: role === "ADMIN" || role === "MANAGER" ? 120000 : role === "HR" ? 85000 : 60000 // Smart default salary placeholders
     });
 
     return res.status(201).json({
@@ -45,6 +56,8 @@ export const register = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// ... keep loginUser, refreshSession, and logoutUser code exactly the same ...
 
 // @desc    Auth user & get token
 // @route   POST /api/v1/auth/login
